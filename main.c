@@ -97,23 +97,13 @@ int main(int argc, char* argv[])
     
     union data
     {
-        char* buffer;
-        SaveSectorData *saveFile;
+        char buffer[4096];
+        SaveSectorData saveFile;
     } save_u;
 
-    save_u.buffer = calloc(1, 4096+1);
-
-    if (save_u.buffer == NULL)
-	{
-		fclose(input);
-		free(save_u.buffer);
-		fputs("mem alloc failed\n", stderr);
-		exit(1);
-	}
     if (1 != fread(save_u.buffer,4098, 1, input))
 	{
 		fclose(input);
-        free(save_u.buffer);
 		fputs("read failed, or file is blank\n", stderr);
         exit(1);
 	}
@@ -122,18 +112,18 @@ int main(int argc, char* argv[])
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
-    //save_u.saveFile->language = 0;
+    printf("Language was %x\n", save_u.saveFile.unlockedCharacters);
+    save_u.saveFile.unlockedCharacters = '\033';
+    printf("Language is now %c\n", save_u.saveFile.unlockedCharacters);
 
-    for (i = 0; i<4092; i++)
+    for (i = 0; i<4096; i++)
         printf("%c", save_u.buffer[i]);
     printf("\n");
 
-    save_u.saveFile->checksum = CalcChecksum(save_u.buffer);
-    printf("Valid Checksum is: %x\n", save_u.saveFile->checksum);
+    save_u.saveFile.checksum = CalcChecksum(save_u.buffer);
+    printf("Valid Checksum is: %x\n", save_u.saveFile.checksum);
     FILE* f1 = fopen("sa3.sav", "wb");
-    fwrite(save_u.buffer, sizeof(char), 4098, f1);
+    fwrite(save_u.buffer, sizeof(SaveSectorData), 1, f1);
     fclose(f1);
-    free(save_u.buffer);
-    save_u.buffer = NULL;
     return 0;
 }
