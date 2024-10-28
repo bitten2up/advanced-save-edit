@@ -26,23 +26,8 @@ typedef u32 bool32;
 #define NUM_COURSE_ZONES   7
 #define ACTS_PER_ZONE      4
 
-struct MultiplayerScore {
-    u32 playerId;
-    u16 playerName[MAX_PLAYER_NAME_LENGTH];
-
-    bool8 slotFilled;
-
-    u8 wins;
-    u8 losses;
-    u8 draws;
-};
-
-struct TimeRecords {
-    u16 table[NUM_CHARACTERS][NUM_COURSE_ZONES][ACTS_PER_ZONE][TIME_RECORDS_PER_COURSE];
-};
-
 // Used in struc_30008A0
-typedef struct {
+typedef struct  __attribute__((packed)) {
     u32 playerId;
     u16 playerName[MAX_PLAYER_NAME_LENGTH];
 
@@ -54,7 +39,7 @@ typedef struct {
 } VsRecords;
 
 // Used in struc_3000CF0
-typedef struct {
+typedef struct  __attribute__((packed)) {
     u8 unk0;
     u8 wins;
     u8 draws;
@@ -63,10 +48,11 @@ typedef struct {
     u16 playerName[MAX_PLAYER_NAME_LENGTH];
 } VsRecords2;
 
-typedef struct {
+typedef struct  __attribute__((packed)) {
     u16 table[NUM_COURSE_ZONES][ACTS_PER_ZONE][TIME_RECORDS_PER_COURSE];
 } TimeRecords;
-typedef struct {
+
+typedef struct  __attribute__((packed)) {
     u32 magicNumber; // default: 0x47544E4C ("LNTG")
     u32 v4;
 

@@ -40,6 +40,7 @@
 int main(int argc, char* argv[])
 {
     FILE* input = fopen("sa3.sav.bak1", "rb");
+    FILE* f1 = fopen("sa3.sav", "wb");
 
     fseek(input, 0L, SEEK_END);
     int inputsize = ftell(input);
@@ -97,8 +98,8 @@ int main(int argc, char* argv[])
     
     union data
     {
-        char buffer[4096];
         SaveSectorData saveFile;
+        char buffer[4098];
     } save_u;
 
     if (1 != fread(save_u.buffer,4098, 1, input))
@@ -108,22 +109,42 @@ int main(int argc, char* argv[])
         exit(1);
 	}
 
-    fclose(input);
+    char test[4098];
+
+    memcpy(test, save_u.buffer, 4098);
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
-    printf("Language was %x\n", save_u.saveFile.unlockedCharacters);
-    save_u.saveFile.unlockedCharacters = '\033';
-    printf("Language is now %c\n", save_u.saveFile.unlockedCharacters);
+    printf("Language was %i\n", save_u.saveFile.language);
+    save_u.saveFile.language = 0;
+    printf("Language is now %x\n", save_u.saveFile.language);
 
     for (i = 0; i<4096; i++)
-        printf("%c", save_u.buffer[i]);
-    printf("\n");
+    {
+        if (save_u.buffer[i] != test[i])
+        {
+            printf("doesn't match @%i\n", i);
+        }
+    }
 
     save_u.saveFile.checksum = CalcChecksum(save_u.buffer);
     printf("Valid Checksum is: %x\n", save_u.saveFile.checksum);
-    FILE* f1 = fopen("sa3.sav", "wb");
-    fwrite(save_u.buffer, sizeof(SaveSectorData), 1, f1);
+    fseek(f1, 4096*bestSector, SEEK_SET);
+    fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
+    rewind(f1);
+    rewind(input);
+
+
+    for (i = 0; i < NUM_SAVE_SECTORS; i++)
+    {
+        if (i == bestSector) continue;
+
+        fread(save_u.buffer, sizeof(save_u.buffer), 1, input);
+        fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
+    }
+        
+
+    fclose(input);
     fclose(f1);
     return 0;
 }
