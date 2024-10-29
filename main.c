@@ -146,10 +146,10 @@ int main(int argc, char* argv[])
 
     for (i = 0; i<4096; i++)
     {
-        printf("0x%x: 0x%x\n", i, save_u.buffer[i]);
+        //printf("0x%x: 0x%x\n", i, save_u.buffer[i]);
         if (save_u.buffer[i] != test[i])
         {
-            printf("doesn't match @%x\n", i);
+            printf("doesn't match @%x\n probally a good thing because it means it changed\n", i);
         }
     }
 
