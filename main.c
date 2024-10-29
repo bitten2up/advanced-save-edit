@@ -9,15 +9,6 @@
 
 #define reverse_bytes_32(num) ( ((num & 0xFF000000) >> 24) | ((num & 0x00FF0000) >> 8) | ((num & 0x0000FF00) << 8) | ((num & 0x000000FF) << 24) )
 
-#define CalcChecksum(save)                                                              \
-    ({                                                                                  \
-        u32 j, checksum = 0;                                                            \
-        for (j = 0; j < SECTOR_CHECKSUM_OFFSET; j += sizeof(u32)) {                     \
-            checksum += *(u32 *)((save) + j);                                           \
-        }                                                                               \
-        reverse_bytes_32(checksum);                                                     \
-    })
-
 #define UNLOCK_FLAG_CREAM       1 << 0
 #define UNLOCK_FLAG_TAILS       1 << 1
 #define UNLOCK_FLAG_KNUCKLES    1 << 2
@@ -35,6 +26,15 @@
 #define SECTOR_SECURITY_NUM    0x47544E4C
 #define SECTOR_CHECKSUM_OFFSET 872
 #define NUM_SAVE_SECTORS       16
+
+#define CalcChecksum(save)                                                              \
+    ({                                                                                  \
+        u32 j, checksum = 0;                                                            \
+        for (j = 0; j < SECTOR_CHECKSUM_OFFSET; j += sizeof(u32)) {                     \
+            checksum += *(u32 *)((save) + j);                                           \
+        }                                                                               \
+        reverse_bytes_32(checksum);                                                     \
+    })
 
 
 int main(int argc, char* argv[])
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     union data
     {
         SaveSectorData saveFile;
-        char buffer[4098];
+        char buffer[4096];
     } save_u;
 
     if (1 != fread(save_u.buffer,4098, 1, input))
@@ -109,26 +109,32 @@ int main(int argc, char* argv[])
         exit(1);
 	}
 
-    char test[4098];
+    char test[4096];
 
-    memcpy(test, save_u.buffer, 4098);
+    memcpy(test, save_u.buffer, 4096);
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
-    printf("Language was %i\n", save_u.saveFile.language);
-    save_u.saveFile.language = 0;
-    printf("Language is now %x\n", save_u.saveFile.language);
+    printf("v3D was %b\n", save_u.saveFile.v3D);
+    printf("v3D manual... %x\n", save_u.buffer[0x3D]);
+    save_u.buffer[0x3D] |= UNLOCK_FLAG_TAILS;
+    printf("Language is now %x\n", save_u.saveFile.v1C);
 
     for (i = 0; i<4096; i++)
     {
+        printf("0x%x: 0x%x\n", i, save_u.buffer[i]);
         if (save_u.buffer[i] != test[i])
         {
-            printf("doesn't match @%i\n", i);
+            printf("doesn't match @%x\n", i);
         }
     }
 
-    save_u.saveFile.checksum = CalcChecksum(save_u.buffer);
-    printf("Valid Checksum is: %x\n", save_u.saveFile.checksum);
+    u32 checksum = CalcChecksum(save_u.buffer);
+    printf("Valid Checksum is: %x\n", checksum);
+    save_u.buffer[SECTOR_CHECKSUM_OFFSET] = (checksum>>24) & 0xFF;
+	save_u.buffer[SECTOR_CHECKSUM_OFFSET+1] = (checksum>>16) & 0xFF;
+	save_u.buffer[SECTOR_CHECKSUM_OFFSET+2] = (checksum>>8) & 0xFF;
+	save_u.buffer[SECTOR_CHECKSUM_OFFSET+3] = checksum & 0xFF;
     fseek(f1, 4096*bestSector, SEEK_SET);
     fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
     rewind(f1);
@@ -137,10 +143,17 @@ int main(int argc, char* argv[])
 
     for (i = 0; i < NUM_SAVE_SECTORS; i++)
     {
-        if (i == bestSector) continue;
 
-        fread(save_u.buffer, sizeof(save_u.buffer), 1, input);
-        fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
+        if (i == bestSector) 
+        {
+            fseek(input, 4096, SEEK_CUR);
+            fseek(f1, 4096, SEEK_CUR);
+        }
+        else
+        {
+            fread(save_u.buffer, sizeof(save_u.buffer), 1, input);
+            fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
+        }
     }
         
 
