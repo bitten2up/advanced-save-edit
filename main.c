@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include <endian.h>
+//#include <endian.h>
 
 #include "globals.h"
 
@@ -39,7 +39,7 @@
 
 int main(int argc, char* argv[])
 {
-    FILE* input = fopen("sa3.sav.bak1", "rb");
+    FILE* input = fopen("sa3.sav.bak", "rb");
     FILE* f1 = fopen("sa3.sav", "wb");
 
     fseek(input, 0L, SEEK_END);
