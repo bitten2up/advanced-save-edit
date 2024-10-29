@@ -90,6 +90,30 @@ int main(int argc, char* argv[])
             }
         }
     }
+    // newerish save file hasn't wrapped around yet
+    if (maxVersion == ~0) {
+	    rewind(input);
+    	    fseek(input, 4L, SEEK_CUR);
+	    minVersion = 0xffff0000;
+	    for (i = 0; i < NUM_SAVE_SECTORS; i++) {
+        	char dammit[4];
+        	fread(dammit, 4, 1, input);
+        	curSector = *(u32*)dammit;
+        	if (minVersion >= 0xffff0000 && curSector < minVersion) {
+            		bestSector = i;
+	            	minVersion = curSector;
+        	}
+        	fseek(input, 4092L, SEEK_CUR);
+	    }
+	    if (minVersion == 0xffff0000) {
+		    printf("ERROR: NO SUITABLE SECTORS FOUND, ARE YOU SURE THIS IS A SONIC ADVANCE 3 SAVE FILE?\n");
+    	       	    printf("min version: %u\n", minVersion);
+    		    printf("max version: %u\n", maxVersion);
+    		    printf("best sector: %u\n", sectorNum);
+		    exit(1);
+	    }
+    }
+
     printf("min version: %u\n", minVersion);
     printf("max version: %u\n", maxVersion);
     printf("best sector: %u\n", sectorNum);
