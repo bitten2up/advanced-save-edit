@@ -139,10 +139,10 @@ int main(int argc, char* argv[])
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
-    printf("v3D was %b\n", save_u.saveFile.v3D);
-    printf("v3D manual... %x\n", save_u.buffer[0x3D]);
-    save_u.buffer[0x3D] |= UNLOCK_FLAG_TAILS;
-    printf("Language is now %x\n", save_u.saveFile.v1C);
+    printf("v363 was %x\n", save_u.saveFile.v363);
+    printf("v363 manual... %x\n", save_u.buffer[0x1c]);
+    save_u.buffer[0x1c] = ~0;
+    printf("v363 is now %x\n", save_u.saveFile.v364);
 
     for (i = 0; i<4096; i++)
     {
