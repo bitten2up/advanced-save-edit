@@ -6,6 +6,7 @@
 //#include <endian.h>
 
 #include "globals.h"
+#include "r_render.h"
 
 #define reverse_bytes_32(num) ( ((num & 0xFF000000) >> 24) | ((num & 0x00FF0000) >> 8) | ((num & 0x0000FF00) << 8) | ((num & 0x000000FF) << 24) )
 
@@ -139,11 +140,14 @@ int main(int argc, char* argv[])
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
-    printf("v363 was %x\n", save_u.saveFile.v363);
-    printf("v363 manual... %x\n", save_u.buffer[0x1c]);
-    save_u.buffer[0x1c] = ~0;
-    printf("v363 is now %x\n", save_u.saveFile.v364);
-
+    InitWindow("Advanced Save Editor", 100, 100);
+    u8 mainLoop = true;
+    while (mainLoop == true)
+    {
+	   r_clear();
+	   r_display();
+	   mainLoop = false;
+    }
     for (i = 0; i<4096; i++)
     {
         //printf("0x%x: 0x%x\n", i, save_u.buffer[i]);
@@ -183,5 +187,6 @@ int main(int argc, char* argv[])
 
     fclose(input);
     fclose(f1);
+    CloseWindow();
     return 0;
 }
