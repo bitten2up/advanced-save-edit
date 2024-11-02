@@ -10,6 +10,7 @@
 
 #include "globals.h"
 #include "r_render.h"
+#include "ui_main.h"
 #include "poll.h"
 
 #define reverse_bytes_32(num) ( ((num & 0xFF000000) >> 24) | ((num & 0x00FF0000) >> 8) | ((num & 0x0000FF00) << 8) | ((num & 0x000000FF) << 24) )
@@ -47,17 +48,22 @@ int main(int argc, char* argv[])
 
     // ok, first prompt the user to open a file. Of course this is a fucking bitch because I need to support both windows and linux
 
-    #ifdef __linux__
+    #ifdef __linux__1
     char filename[1024], outfilename[1024];
 
     // this only works if you have zenity installed, but i'm too lazy rn to get it working in other cases
     // if we were using sdl3, we could just use SDL_ShowOpenFileDialog, but we are on sdl2 rn
-    FILE* zenityPath = popen("zenity  --file-selection --modal --title=\"Select Sonic Advance 3 savefile\" 2> /dev/null","r");
+    FILE* zenityPath = popen("zenity  --file-selection --modal --title=\"Select Sonic Advance 3 savefile\" --filename=\".\" 2> /dev/null","r");
     if (zenityPath==NULL) {
         I_Error("Pipe into zenity returned a error");
     }
 
     fgets(filename, 1024, zenityPath);
+    pclose(zenityPath);
+    if (filename[0] == 0)
+    {
+        I_Error("Please actually select a file...");
+    }
     zenityPath = popen("zenity  --file-selection --modal --save --title=\"Where to Save Sonic Advance 3 savefile\" 2> /dev/null","r");
     if (zenityPath==NULL) {
         I_Error("Pipe into zenity returned a error");
@@ -65,6 +71,12 @@ int main(int argc, char* argv[])
 
     fgets(outfilename, 1024, zenityPath);
     pclose(zenityPath);
+
+    if (outfilename[0] == 0)
+    {
+        I_Error("Please actually select a file...");
+    }
+    printf("%s:%s",filename,outfilename);
 
     if (strcmp(filename,outfilename) == 0)
     {
@@ -183,7 +195,9 @@ int main(int argc, char* argv[])
     {
         i_poll(&mainLoop);
         r_clear();
-        r_text("Advance 3 Save editor", 100,10);
+        r_text("Advance 3 Save editor", 200,10);
+
+        ui_draw();
 	
         r_display();
     }

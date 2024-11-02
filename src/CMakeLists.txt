@@ -3,7 +3,7 @@ if(MSVC AND NOT VCPKG_TOOLCHAIN)
 endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wpedantic -Wextra -std=c23")
 
-add_executable(advance-save-edit "main.c" "r_render.c" "poll.c")
+add_executable(advance-save-edit "main.c" "r_render.c" "poll.c" "ui_main.c")
 
 if(VCPKG_TOOLCHAIN)
   #find_package(sdl2 REQUIRED) # transitively included?

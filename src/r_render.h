@@ -36,6 +36,9 @@ SDL_Texture* loadTexture(const char* p_filePath);
 void r_clear();
 //void r_sprite(e_entitySprite* e);
 void r_text(char* message, int x, int y);
+void r_textbox(char* message, int x, int y);
+void r_rect(int x, int y, int w, int h);
+
 void r_display();
 // dealloc memory
 void CloseWindow(void);
