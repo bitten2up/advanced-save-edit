@@ -24,7 +24,6 @@
 
 #ifndef POLL_H
 #define POLL_H
-#include <SDL2/SDL.h>
 #include "globals.h"
 
 void i_poll(u8 *mainLoop);

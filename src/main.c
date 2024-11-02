@@ -43,6 +43,7 @@
     })
 
 
+union save_u savedata;
 int main(int argc, char* argv[])
 {
 
@@ -175,7 +176,6 @@ int main(int argc, char* argv[])
     printf("best sector: %u\n", sectorNum);
 
     fseek(input, 4096*bestSector, SEEK_SET);
-    union save_u savedata;
     if (1 != fread(savedata.buffer,4098, 1, input))
 	{
 		fclose(input);

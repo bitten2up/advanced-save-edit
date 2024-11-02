@@ -22,7 +22,11 @@
 * SOFTWARE.
 */
 
+#include <SDL2/SDL.h>
+
 #include "poll.h"
+#include "ui_main.h"
+
 SDL_Event event;
 void i_poll(u8 *mainLoop)
 {
@@ -32,6 +36,11 @@ void i_poll(u8 *mainLoop)
       case SDL_QUIT:
         *mainLoop = false;
         break;
+        
+      case SDL_MOUSEBUTTONDOWN:
+        int x, y;
+        Uint32 buttons = SDL_GetMouseState(&x, &y);
+        ui_handleclick(x,y);
       default:
         break;
     }
