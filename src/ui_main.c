@@ -35,11 +35,21 @@
 void ui_draw(void)
 {
   r_textbox("enable boss time attack", 100,200);
+  r_textbox("enable soundtest", 300,200);
+  r_textbox("exit", 100,300);
 }
 
-void ui_handleclick(int x, int y)
+u8 ui_handleclick(int x, int y)
 {
   printf("%i:%i\n", x, y);
   if (x >= 10 && x <= 192 && y >= 185 && y <= 209)
     savedata.buffer[0x3D] |= 1 << 1;
+
+  if (x >= 310 && x <= 492 && y >= 185 && y <= 209)
+    savedata.buffer[0x3D] |= 1 << 1;
+
+  if (x >= 10 && x <= 192 && y >= 285 && y <= 309)
+    return false;
+
+  return true;
 }

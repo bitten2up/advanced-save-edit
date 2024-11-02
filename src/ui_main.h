@@ -24,6 +24,8 @@
 
 #ifndef UI_MAIN_H
 #define UI_MAIN_H
+#include "globals.h"
+
 void ui_draw();
-void ui_handleclick(int x, int y);
+u8 ui_handleclick(int x, int y);
 #endif

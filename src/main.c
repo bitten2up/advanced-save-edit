@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
     // ok, first prompt the user to open a file. Of course this is a fucking bitch because I need to support both windows and linux
 
-    #ifdef __linux__1
+    #ifdef __linux__
     char filename[1024], outfilename[1024];
 
     // this only works if you have zenity installed, but i'm too lazy rn to get it working in other cases

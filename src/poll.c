@@ -24,6 +24,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "globals.h"
 #include "poll.h"
 #include "ui_main.h"
 
@@ -40,7 +41,9 @@ void i_poll(u8 *mainLoop)
       case SDL_MOUSEBUTTONDOWN:
         int x, y;
         Uint32 buttons = SDL_GetMouseState(&x, &y);
-        ui_handleclick(x,y);
+        if (!ui_handleclick(x,y))
+          *mainLoop = false;
+        break;
       default:
         break;
     }
