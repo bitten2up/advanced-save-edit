@@ -94,6 +94,7 @@ void r_text(char* message, int x, int y) {
 	SDL_DestroyTexture(text);
 }
 
+// really bad textbox
 void r_textbox(char* message, int x, int y) {
   int text_width;
   int text_height;
