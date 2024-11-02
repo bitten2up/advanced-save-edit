@@ -101,10 +101,11 @@ typedef struct  __attribute__((packed)) {
               // it HAS to be the last member of the struct
 } SaveSectorData;
 
-union data
+// idk maybe ill make this a struct as the reason for why its a union isn't fucking working
+union save_u
 {
     SaveSectorData saveFile;
     char buffer[4096];
 };
-extern union data save_u;
+extern union save_u savedata;
 #endif

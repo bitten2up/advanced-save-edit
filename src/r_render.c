@@ -119,3 +119,25 @@ void r_display()
 {
 	SDL_RenderPresent(renderer);
 }
+
+void I_Alert(char* message)
+{
+  char buffer[2048];
+  sprintf(buffer, "Alert: %s", message);
+
+  // print to console and also display message box
+  printf("%s\n", buffer);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Advance 3 Save editor", buffer, NULL);
+}
+
+void I_Error(char* message)
+{
+  char buffer[2048];
+  sprintf(buffer, "ERROR: %s", message);
+
+  // print to console and also display message box
+  printf("ERROR: %s\n", message);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Advance 3 Save editor", buffer, NULL);
+
+  exit(-1);
+}

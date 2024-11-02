@@ -39,4 +39,7 @@ void r_text(char* message, int x, int y);
 void r_display();
 // dealloc memory
 void CloseWindow(void);
+
+//critical error
+void I_Error(char* message);
 #endif

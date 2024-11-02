@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <string.h>
 //#include <endian.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include "globals.h"
 #include "r_render.h"
@@ -41,8 +44,48 @@
 
 int main(int argc, char* argv[])
 {
+
+    // ok, first prompt the user to open a file. Of course this is a fucking bitch because I need to support both windows and linux
+
+    #ifdef __linux__
+    char filename[1024], outfilename[1024];
+
+    // this only works if you have zenity installed, but i'm too lazy rn to get it working in other cases
+    // if we were using sdl3, we could just use SDL_ShowOpenFileDialog, but we are on sdl2 rn
+    FILE* zenityPath = popen("zenity  --file-selection --modal --title=\"Select Sonic Advance 3 savefile\" 2> /dev/null","r");
+    if (zenityPath==NULL) {
+        I_Error("Pipe into zenity returned a error");
+    }
+
+    fgets(filename, 1024, zenityPath);
+    zenityPath = popen("zenity  --file-selection --modal --save --title=\"Where to Save Sonic Advance 3 savefile\" 2> /dev/null","r");
+    if (zenityPath==NULL) {
+        I_Error("Pipe into zenity returned a error");
+    }
+
+    fgets(outfilename, 1024, zenityPath);
+    pclose(zenityPath);
+
+    if (strcmp(filename,outfilename) == 0)
+    {
+        I_Error("the output savefile can't be the same as the input save file");
+    }
+
+    filename[strcspn(filename, "\n")] = 0;
+    outfilename[strcspn(outfilename, "\n")] = 0;
+
+    printf("%s:%s",filename,outfilename);
+    FILE* input = fopen(filename, "rb");
+    FILE* f1 = fopen(outfilename, "wb");
+
+
+    #else
+    // not on any supported operating system, fallback to hardcoded paths
     FILE* input = fopen("sa3.sav.bak", "rb");
     FILE* f1 = fopen("sa3.sav", "wb");
+    #endif
+
+// ok end of that shit
 
     fseek(input, 0L, SEEK_END);
     int inputsize = ftell(input);
@@ -108,11 +151,10 @@ int main(int argc, char* argv[])
         	fseek(input, 4092L, SEEK_CUR);
 	    }
 	    if (minVersion == 0xffff0000) {
-		    printf("ERROR: NO SUITABLE SECTORS FOUND, ARE YOU SURE THIS IS A SONIC ADVANCE 3 SAVE FILE?\n");
-    	       	    printf("min version: %u\n", minVersion);
-    		    printf("max version: %u\n", maxVersion);
-    		    printf("best sector: %u\n", sectorNum);
-		    exit(1);
+    	    printf("min version: %u\n", minVersion);
+    		printf("max version: %u\n", maxVersion);
+    	    printf("best sector: %u\n", sectorNum);
+		    I_Error("NO SUITABLE SECTORS FOUND, ARE YOU SURE THIS IS A SONIC ADVANCE 3 SAVE FILE?\nYou can check the console output for more detail");
 	    }
     }
 
@@ -121,8 +163,8 @@ int main(int argc, char* argv[])
     printf("best sector: %u\n", sectorNum);
 
     fseek(input, 4096*bestSector, SEEK_SET);
-    union data save_u;
-    if (1 != fread(save_u.buffer,4098, 1, input))
+    union save_u savedata;
+    if (1 != fread(savedata.buffer,4098, 1, input))
 	{
 		fclose(input);
 		fputs("read failed, or file is blank\n", stderr);
@@ -131,7 +173,7 @@ int main(int argc, char* argv[])
 
     char test[4096];
 
-    memcpy(test, save_u.buffer, 4096);
+    memcpy(test, savedata.buffer, 4096);
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
@@ -147,21 +189,21 @@ int main(int argc, char* argv[])
     }
     for (i = 0; i<4096; i++)
     {
-        //printf("0x%x: 0x%x\n", i, save_u.buffer[i]);
-        if (save_u.buffer[i] != test[i])
+        //printf("0x%x: 0x%x\n", i, savedata.buffer[i]);
+        if (savedata.buffer[i] != test[i])
         {
             printf("doesn't match @%x\n probally a good thing because it means it changed\n", i);
         }
     }
 
-    u32 checksum = CalcChecksum(save_u.buffer);
+    u32 checksum = CalcChecksum(savedata.buffer);
     printf("Valid Checksum is: %x\n", checksum);
-    save_u.buffer[SECTOR_CHECKSUM_OFFSET] = (checksum>>24) & 0xFF;
-	save_u.buffer[SECTOR_CHECKSUM_OFFSET+1] = (checksum>>16) & 0xFF;
-	save_u.buffer[SECTOR_CHECKSUM_OFFSET+2] = (checksum>>8) & 0xFF;
-	save_u.buffer[SECTOR_CHECKSUM_OFFSET+3] = checksum & 0xFF;
+    savedata.buffer[SECTOR_CHECKSUM_OFFSET] = (checksum>>24) & 0xFF;
+	savedata.buffer[SECTOR_CHECKSUM_OFFSET+1] = (checksum>>16) & 0xFF;
+	savedata.buffer[SECTOR_CHECKSUM_OFFSET+2] = (checksum>>8) & 0xFF;
+	savedata.buffer[SECTOR_CHECKSUM_OFFSET+3] = checksum & 0xFF;
     fseek(f1, 4096*bestSector, SEEK_SET);
-    fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
+    fwrite(savedata.buffer, sizeof(savedata.buffer), 1, f1);
     rewind(f1);
     rewind(input);
 
@@ -176,8 +218,8 @@ int main(int argc, char* argv[])
         }
         else
         {
-            fread(save_u.buffer, sizeof(save_u.buffer), 1, input);
-            fwrite(save_u.buffer, sizeof(save_u.buffer), 1, f1);
+            fread(savedata.buffer, sizeof(savedata.buffer), 1, input);
+            fwrite(savedata.buffer, sizeof(savedata.buffer), 1, f1);
         }
     }
         
