@@ -1,3 +1,5 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
 typedef uint8_t   u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
@@ -98,3 +100,11 @@ typedef struct  __attribute__((packed)) {
     u32 checksum; // v368 | Checksum? In sub_800212C() this value is calculated and show that
               // it HAS to be the last member of the struct
 } SaveSectorData;
+
+union data
+{
+    SaveSectorData saveFile;
+    char buffer[4096];
+};
+extern union data save_u;
+#endif

@@ -7,6 +7,7 @@
 
 #include "globals.h"
 #include "r_render.h"
+#include "poll.h"
 
 #define reverse_bytes_32(num) ( ((num & 0xFF000000) >> 24) | ((num & 0x00FF0000) >> 8) | ((num & 0x0000FF00) << 8) | ((num & 0x000000FF) << 24) )
 
@@ -120,13 +121,7 @@ int main(int argc, char* argv[])
     printf("best sector: %u\n", sectorNum);
 
     fseek(input, 4096*bestSector, SEEK_SET);
-    
-    union data
-    {
-        SaveSectorData saveFile;
-        char buffer[4096];
-    } save_u;
-
+    union data save_u;
     if (1 != fread(save_u.buffer,4098, 1, input))
 	{
 		fclose(input);
@@ -140,13 +135,15 @@ int main(int argc, char* argv[])
 
     //SaveSectorData *saveFile = (SaveSectorData *)buffer;
 
-    InitWindow("Advanced Save Editor", 100, 100);
+    InitWindow("Advanced Save Editor", 400, 400);
     u8 mainLoop = true;
     while (mainLoop == true)
     {
-	   r_clear();
-	   r_display();
-	   mainLoop = false;
+        i_poll(&mainLoop);
+        r_clear();
+        r_text("Advance 3 Save editor", 100,10);
+	
+        r_display();
     }
     for (i = 0; i<4096; i++)
     {
@@ -188,5 +185,6 @@ int main(int argc, char* argv[])
     fclose(input);
     fclose(f1);
     CloseWindow();
+    SDL_Quit();
     return 0;
 }
