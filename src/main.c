@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     // this only works if you have zenity installed, but i'm too lazy rn to get it working in other cases
     // if we were using sdl3, we could just use SDL_ShowOpenFileDialog, but we are on sdl2 rn
-    FILE* zenityPath = popen("zenity  --file-selection --modal --title=\"Select Sonic Advance 3 savefile\" --filename=\".\" 2> /dev/null","r");
+    FILE* zenityPath = popen("zenity  --file-selection --modal --title=\"Select Sonic Advance 3 savefile\" --filename=\"./\" 2> /dev/null","r");
     if (zenityPath==NULL) {
         I_Error("Pipe into zenity returned a error");
     }
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
     {
         I_Error("Please actually select a file...");
     }
-    zenityPath = popen("zenity  --file-selection --modal --save --title=\"Where to Save Sonic Advance 3 savefile\" 2> /dev/null","r");
+    zenityPath = popen("zenity  --file-selection --modal --save --title=\"Where to Save Sonic Advance 3 savefile\" --filename=\"./\" 2> /dev/null","r");
     if (zenityPath==NULL) {
         I_Error("Pipe into zenity returned a error");
     }
